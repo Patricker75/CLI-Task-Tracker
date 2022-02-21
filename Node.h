@@ -1,6 +1,8 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include <iostream>
+
 template <class T>
 struct Node {
     T data;
@@ -16,6 +18,11 @@ struct Node {
         this->left = nullptr;
         this->right = nullptr;
     };
+
+    friend std::ostream& operator<< (std::ostream& os, const Node<T>& node) {
+        os << node.data;
+        return os;
+    }
 
 };
 

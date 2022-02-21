@@ -64,7 +64,8 @@ public:
             return nullptr;
         }
 
-        return this->Search(date, this->root);
+        Node<int>* temp = this->Search(date, this->root);
+        return static_cast<TaskNode*>(temp);
     }
     
 };

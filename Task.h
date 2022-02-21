@@ -2,13 +2,14 @@
 #define TASK_H
 
 #include <string>
+#include <iostream>
 #include "LinkedList.h"
 #include "Date.h"
 
 struct Task {
     Task() {}
     
-    Task(std::string name) {
+    Task(const std::string& name) {
         this->name = name;
         this->notes = "";
         this->tags = new LinkedList<std::string>();
@@ -24,6 +25,17 @@ struct Task {
         this->name = name;
         this->notes = notes;
         this->tags = tags;
+    }
+
+    Task(const Task& task) {
+        this->name = task.name;
+        this->notes = task.notes;
+        this->tags = task.tags;
+    }
+
+    friend std::ostream& operator<< (std::ostream& os, const Task& task) {
+        os << task.name;
+        return os;
     }
 
     std::string name;

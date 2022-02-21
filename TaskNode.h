@@ -5,7 +5,7 @@
 #include "LinkedList.h"
 #include "Task.h"
 
-struct TaskNode : Node<int> {
+struct TaskNode : public Node<int> {
     TaskNode(int date) : Node<int>(date) {
         this->tasks = new LinkedList<Task>();
     };
