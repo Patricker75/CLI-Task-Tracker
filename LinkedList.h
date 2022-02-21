@@ -3,6 +3,7 @@
 
 #include "Node.h"
 #include <string>
+#include <iostream>
 
 template <class T>
 class LinkedList {
@@ -18,6 +19,26 @@ private:
         output += std::to_string(node->data) + " " + this->ToString(node->next);
         return output;
     };
+
+    void Remove(T data, Node<T>* node) {
+        if (node->next == nullptr) {
+            return;
+        }
+
+        if (node->next->data == data) {
+            Node<T>* toRemove = node->next;
+            node->next = toRemove->next;
+            
+            if (this->tail == toRemove) {
+                this->tail = node;
+            }
+
+            delete toRemove;
+        }
+        else {
+            this->Remove(data, node->next);
+        }
+    }
 public:
     LinkedList<T>() {
         this->head = nullptr;
@@ -29,6 +50,7 @@ public:
 
         this->Add(temp);
     };
+
     void Add(Node<T>* node) {
         if (this->head == nullptr) {
             this->head = node;
@@ -40,6 +62,18 @@ public:
         this->tail = node;
     };
 
+    void Remove(T data) {
+        if (this->Empty()) {
+            return;
+        }
+        else if (this->head->data == data) {
+            this->head = this->head->next;
+            return;
+        }
+
+        this->Remove(data, this->head);
+    }
+
     Node<T>* GetHead() {
         return this->head;
     };
@@ -50,8 +84,15 @@ public:
     bool Empty() {
         return this->head == nullptr;
     };
-    std::string ToString() {
-        return this->ToString(this->head);
+    
+    friend std::ostream& operator<<(std::ostream& os, const LinkedList<T>& list) {
+        Node<T>* node = list.head;
+
+        while (node != nullptr) {
+            os << node->data << " ";
+            node = node->next;
+        }
+        return os;
     };
 
 };
