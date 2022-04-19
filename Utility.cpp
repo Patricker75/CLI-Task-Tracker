@@ -4,7 +4,11 @@ std::string ListToString(Node<Task>* node) {
     std::string output = "";
 
     while (node != nullptr) {
-        output += node->data.name + "\n";
+        output += node->data.name;
+
+        if (node->data.notes != "") {
+            output += " --- " + node->data.notes + "\n";
+        }
 
         node = node->next;
     }
