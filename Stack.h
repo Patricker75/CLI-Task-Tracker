@@ -8,42 +8,34 @@ class Stack {
 private:
     Node<T>* top;
 public:
-    Stack<T>() {
+    Stack() {
         this->top = nullptr;
     };
-    
+
     void Push(T data) {
         Node<T>* temp = new Node<T>(data);
 
-        this->Push(temp);
-    };
-    void Push(Node<T>* node) {
         if (this->top == nullptr) {
-            this->top = node;
+            this->top = temp;
             return;
         }
 
-        node->next = this->top;
-        this->top = node;
+        temp->next = this->top;
     }
 
-    Node<T>* Peek() {
-        return this->top;
-    }
-    Node<T>* Pop() {
-        if (this->Empty()) {
-            return nullptr;
-        }
-
+    T Pop() {
         Node<T>* temp = this->top;
         this->top = temp->next;
-        return temp;
+        return temp->data;
+    }
+
+    T Peek() {
+        return this->top->data;
     }
 
     bool Empty() {
         return this->top == nullptr;
-    }
-
+    }    
 };
 
 #endif
