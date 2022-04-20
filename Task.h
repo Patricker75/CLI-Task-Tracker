@@ -11,9 +11,9 @@ public:
 
     Task(std::string name, int dueDate) {
         this->name = name;
+
         this->dueDate = dueDate;
 
-        this->notes = "";
         // this->tags = new LinkedList<std::string>();
     };
 
@@ -26,9 +26,8 @@ public:
     
     std::string name;
     int dueDate;
-
     // LinkedList<std::string> tags;
-    std::string notes;
+    
 
     friend bool operator==(const Task& task1, const Task& task2) {
         return task1.name == task2.name;

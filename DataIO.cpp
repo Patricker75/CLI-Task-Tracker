@@ -1,7 +1,5 @@
 #include "DataIO.h"
 
-#pragma region Loading Data
-
 TaskTree* LoadData (string filePath) {
     ifstream file(filePath);
 
@@ -58,21 +56,19 @@ Task ParseTask (ifstream& file) {
 
     string line;
 
-    getline(file, line);
+    while (!file.eof()) {
+        getline(file, line);
 
-    int indexOfValue = line.find(": ") + 3;
-    t.name = line.substr(indexOfValue, line.length() - indexOfValue - 2);
-    
-    getline(file, line);
-    indexOfValue = line.find(": ") + 3;
-    t.notes = line.substr(indexOfValue, line.length() - indexOfValue - 1);
+        if (line.find("}") != line.npos) {
+            break;
+        }
+
+        int indexOfValue = line.find(": ") + 3;
+        t.name = line.substr(indexOfValue, line.length() - indexOfValue - 1);
+    }
 
     return t;
 }
-
-#pragma endregion Loading Data
-
-#pragma region Saving Data
 
 string Indenter(int tabCount) {
     string out = "";
@@ -83,7 +79,10 @@ string Indenter(int tabCount) {
     return out;
 }
 
+
 void SaveData (TaskTree* tree, string filePath) {
+    
+
     ofstream file(filePath);
 
     int indentCount = 0;
@@ -126,10 +125,9 @@ void SaveData (TaskTree* tree, string filePath) {
             file << Indenter(indentCount) << "{" << endl;
             indentCount++;
 
-            file << Indenter(indentCount) << "\"name\": \"" << task->data.name << "\"," << endl;
-            file << Indenter(indentCount) << "\"notes\": \"" << task->data.notes << "\"" << endl;
-
+            file << Indenter(indentCount) << "\"name\": \"" << task->data.name << "\"" << endl;
             indentCount--;
+
             file << Indenter(indentCount) << "}";
             if (task->next != nullptr) {
                 file << ",";
@@ -157,5 +155,3 @@ void SaveData (TaskTree* tree, string filePath) {
     file.flush();
     file.close();
 }
-
-#pragma endregion Saving Data

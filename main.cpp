@@ -33,16 +33,7 @@ void AddScreen() {
 
     int dueDate = DateParser(date);
 
-    cout << "Notes about Task: ";
-    string notes;
-    getline(cin, notes);
-
     Task task(name, dueDate);
-
-    if (notes != "") {
-        task.notes = notes;
-    }
-
     tree->Insert(task.dueDate, task);
 }
 
@@ -75,14 +66,13 @@ void EditScreen() {
     }
 
     getline(cin, choice);
-    int index = stoi(choice) - 1;
+    int index = stoi(choice) + 1;
 
     Task* targetTask = ptrs[index];
 
     cout << "What to Edit: " << endl;
     cout << "1 - Name" << endl;
     cout << "2 - Due Date" << endl;
-    cout << "3 - Notes" << endl;
     cout << "0 - Exit" << endl;
     getline(cin, choice);
     int option = stoi(choice);
@@ -102,21 +92,10 @@ void EditScreen() {
 
             targetTask->dueDate = DateParser(choice);
             break;
-        case 3:
-            cout << "New Notes: " << endl;
-            getline(cin, choice);
-
-            targetTask->notes = choice;
-            break;
         }
 
         cout << "What to Edit: " << endl;
         getline(cin, choice);
-        
-        if (choice == "") {
-            break;
-        }
-
         option = stoi(choice);
     }
 
