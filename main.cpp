@@ -1,12 +1,16 @@
 #include <iostream>
 #include <fstream>
 
-#include "Stack.h"
 #include "TaskTree.h"
+
+#include "Utility.h"
+#include "DataIO.h"
+
+#include "TestControl.h"
 
 using namespace std;
 
-static TaskTree* taskTree = new TaskTree();
+static TaskTree* tree = new TaskTree();
 
 void PrintMenu() {
     cout << "Choose an Option:" << endl; // TODO add selection text
@@ -14,261 +18,193 @@ void PrintMenu() {
     cout << "1 - add new task" << endl;
     cout << "2 - edit stored task" << endl;
     cout << "3 - delete stored task" << endl;
+
+    cout << "-1 - exit" << endl;
 }
 
 void AddScreen() {
+    cout << "Task Name: ";
     string name;
-    string notes;
-    string date;
-    int day;
-    int month;
-    int year;
-
-    cout << "Name of Task: ";
     getline(cin, name);
 
-    cout << "Notes: ";
-    getline(cin, notes);
-
-    cout << "Due Date (mm/dd/yyyy): ";
-    getline(cin, date);
-
-    month = stoi(date.substr(0, 2));
-    date = date.replace(0, 3, "");
-
-    day = stoi(date.substr(0, 2));
-    date = date.replace(0, 3, "");
-
-    year = stoi(date);
-
-    int codedDate = (year * 10000) + (month * 100) + day;
-
-    Task newTask(name, codedDate, notes);
-    taskTree->Insert(newTask);
-}
-
-LinkedList<Task>* GetTargetDate() {
+    cout << "Due Date (dd/mm/yyyy): ";
     string date;
-
-    cout << "Date of Task to Edit (mm/dd/yyyy): ";
     getline(cin, date);
 
-    int month = stoi(date.substr(0, 2));
-    date = date.replace(0, 3, "");
+    int dueDate = DateParser(date);
 
-    int day = stoi(date.substr(0, 2));
-    date = date.replace(0, 3, "");
-
-    int year = stoi(date);
-
-    int codedDate = (year * 10000) + (month * 100) + day;
-
-    TaskNode* targetNode = taskTree->Search(codedDate);
-    
-    if (targetNode == nullptr) {
-        return nullptr;
-    }
-    return targetNode->tasks;
-}
-
-Task* GetTargetTask(LinkedList<Task>* list) {
-    int count = 0;
-    
-    Node<Task>* current = list->GetHead();
-    while (current != nullptr) {
-        cout << count << " - " << current->data.name << endl;
-
-        current = current->next;
-        count++;
-    }
-    cout << "-1 - Exit" << endl;
-    cout << "Choose Task You Want to Edit: ";
-    
-    string _;
-    getline(cin, _);
-    int choice = stoi(_);
-
-    if (choice == -1) {
-        return nullptr;
-    }
-
-    current = list->GetHead();
-
-    for (int i = 0; i < choice; i++) {
-        current = current->next;
-    }
-
-    return &current->data;
-}
-
-void EditTask(Task* task) {
-    cout << "Choose a field to change:" << endl;
-    cout << "0 - Change Name" << endl;
-    cout << "1 - Change Notes" << endl;
-    cout << "2 - Change Due Date" << endl;
-    cout << "-1 - Quit" << endl;
-
-    int choice;
-    cin >> choice;
-
-    string discard;
-    getline(cin, discard);
-
-    string newData;
-    if (choice == 0) {
-        cout << "New Task Name: ";
-        getline(cin, newData);
-
-        task->name = newData;
-    }
-    else if (choice == 1) {
-        cout << "New Notes: ";
-        getline(cin, newData);
-
-        task->notes = newData;
-    }
-    else if (choice == 2) {
-        cout << "New Due Date (mm/dd/yyyy): ";
-        getline(cin, newData);
-
-        int month = stoi(newData.substr(0, 2));
-        newData = newData.replace(0, 3, "");
-
-        int day = stoi(newData.substr(0, 2));
-        newData = newData.replace(0, 3, "");
-
-        int year = stoi(newData);
-
-        int codedDate = (year * 10000) + (month * 100) + day;
-
-        task->dueDate = codedDate;
-    }
+    Task task(name, dueDate);
+    tree->Insert(task.dueDate, task);
 }
 
 void EditScreen() {
-    LinkedList<Task>* targetList = GetTargetDate();
-    int listDate = targetList->GetHead()->data.dueDate;
-
-    if (targetList == nullptr) {
-        cout << "No tasks exist for given date";
+    if (tree->Empty()) {
+        cout << "No Tasks" << endl;
+        return;
     }
 
-    Task* target = GetTargetTask(targetList);
-    EditTask(target);
+    cout << "Date of Task to Edit (dd/mm/yyyy): " << endl;
+    string choice;
+    getline(cin, choice);
 
-    if (target->dueDate != listDate) {
-        targetList->Remove(*target);
-    }
+    int dueDate = DateParser(choice);
     
-    Node<Task>* curr = targetList->GetHead();
-    while (curr != nullptr) {
-        cout << curr->data.name << endl;
-        curr = curr->next;
+    LinkedList<Task>* tasks = tree->Search(dueDate)->tasks;
+    if (tasks == nullptr) {
+        cout << "Task with given due date does not exist" << endl;
+        return;
+    }
+
+    int listLength = tasks->GetLength();
+    Task* ptrs[listLength]; 
+    Node<Task>* current = tasks->GetHead();
+    for (int i = 0; i < listLength; i++) {
+        ptrs[i] = &current->data;
+        current = current->next;
+
+        cout << to_string(i + 1) << " - " << ptrs[i]->name << endl;
+    }
+
+    getline(cin, choice);
+    int index = stoi(choice) + 1;
+
+    Task* targetTask = ptrs[index];
+
+    cout << "What to Edit: " << endl;
+    cout << "1 - Name" << endl;
+    cout << "2 - Due Date" << endl;
+    cout << "0 - Exit" << endl;
+    getline(cin, choice);
+    int option = stoi(choice);
+
+    while (option != 0) {
+        switch (option)
+        {
+        case 1:
+            cout << "New Task Name: " << endl;
+            getline(cin, choice);
+            
+            targetTask->name = choice;
+            break;
+        case 2:
+            cout << "New Due Date (dd/mm/yyyy): " << endl;
+            getline(cin, choice);
+
+            targetTask->dueDate = DateParser(choice);
+            break;
+        }
+
+        cout << "What to Edit: " << endl;
+        getline(cin, choice);
+        option = stoi(choice);
+    }
+
+    if (targetTask->dueDate != dueDate) {
+        tasks->Delete(*targetTask);
+        if (tasks->Empty()) {
+            tree->Delete(dueDate);
+        }
+
+        tree->Insert(*targetTask);
     }
 }
 
 void DeleteScreen() {
-    LinkedList<Task>* targetList = GetTargetDate();
-    Task* target = GetTargetTask(targetList);
+    if (tree->Empty()) {
+        cout << "No Tasks" << endl;
+        return;
+    }
 
-    targetList->Remove(*target);
+    cout << "Date of Task to Delete (dd/mm/yyyy): " << endl;
+    string choice;
+    getline(cin, choice);
+
+    int dueDate = DateParser(choice);
+    
+    LinkedList<Task>* tasks = tree->Search(dueDate)->tasks;
+    if (tasks == nullptr) {
+        cout << "Task with given due date does not exist" << endl;
+        return;
+    }
+
+    int listLength = tasks->GetLength();
+    Task* ptrs[listLength]; 
+    Node<Task>* current = tasks->GetHead();
+    for (int i = 0; i < listLength; i++) {
+        ptrs[i] = &current->data;
+        current = current->next;
+
+        cout << to_string(i + 1) << " - " << ptrs[i]->name << endl;
+    }
+
+    getline(cin, choice);
+    int index = stoi(choice) - 1;
+    
+    Task* targetTask = ptrs[index];
+
+    tasks->Delete(*targetTask);
+
+    if (tasks->Empty()) {
+        tree->Delete(dueDate);
+    }
 }
 
 void DisplayScreen() {
-    cout << taskTree->GetAllTasks();
-    // TaskNode* current = taskTree->GetRoot();
-    // Stack<TaskNode*>* stack = new Stack<TaskNode*>();
-
-    // while (current != nullptr || !stack->Empty()) {
-    //     stack->Push(current);
-    //     current = static_cast<TaskNode*>(current->left);
-    // }
+    if (tree->Empty()) {
+        cout << "No Tasks" << endl;
+    }
+    else {
+        cout << InOrderTreeTraverse(tree->GetRoot()) << endl;
+    }
 }
 
 void MenuScreen() {
-    PrintMenu();
-    int option;
-    cin >> option;
+    bool loop = true;
 
-    switch (option) {
-        case 0:
+    while (loop) {
+        PrintMenu();
+        string temp;
+        int option = 0;
+
+        getline(cin, temp);
+        option = stoi(temp);        
+
+        switch (option) {
+            case -1:
+                loop = false;
+                break;
+            case 0:
+                DisplayScreen();
+                break;
+            case 1:
+                AddScreen();
+                break;
+            case 2:
+                EditScreen();
+                break;
+            case 3:
+                DeleteScreen();
+                break;
+            default:
+                cout << "Invalid Input" << endl;
             break;
-        case 1:
-         break;
-        case 2:
-            break;
-        case 3:
-            break;
-        default:
-            return;
-        break;
+        }
+
+        cout << endl;
     }
-}
-
-void SaveTree() {
-    ofstream file("./task_data.txt");
-
-    TaskNode* node = taskTree->GetRoot();
-    Stack<TaskNode*>* stack = new Stack<TaskNode*>();
-    stack->Push(node);
-
-    while(!stack->Empty()) {
-        node = stack->Pop()->data;
-        
-        if (node->left != nullptr) {
-            stack->Push(static_cast<TaskNode*>(node->left));
-        }
-        if (node->right != nullptr) {
-            stack->Push(static_cast<TaskNode*>(node->right));
-        }
-
-        file << to_string(node->data) + " ";
-
-        Node<Task>* task = node->tasks->GetHead();
-        while (task != nullptr) {
-            file << task->data.name + "&delim&";
-            task = task->next;
-        }
-
-        file << "\n";
-    }
-
-    file.flush();
-    file.close();
 }
 
 void Run() {
-    // AddScreen();
-    // MenuScreen();
+    MenuScreen();
 }
 
 int main(int argc, char* argv []) {
-    // taskTree->Insert(Task("test 1", 20220221));
-    // taskTree->Insert(Task("test 2", 20220221));
-    // taskTree->Insert(Task("test 3", 20220221));
-    // taskTree->Insert(Task("test 4", 20200531));
-    // taskTree->Insert(Task("Test 19", 20230615));
+    string fileName = "data.json";
 
-    Task t1("Test 1 - Copy", 20220221);
-    Task t2("Test 2", 20220221);
-    Task t3("Test 3", 20220301);
-    Task t4("Test 4", 20220304);
-    Task t5("Test 5- Copy", 20220520);
+    tree = LoadData(fileName);
 
-    taskTree->Insert(t1);
-    taskTree->Insert(t2);
-    taskTree->Insert(t3);
-    taskTree->Insert(t4);
-    taskTree->Insert(t5);
+    Run();
 
-    // LinkedList<Task*>* tagged = new LinkedList<Task*>();
-    // tagged->Add(taskTree->SearchTask(t1));
-    // tagged->Add(taskTree->SearchTask(t5));
-
-    // tagged->GetHead()->data->name = "Overwritten";
-
-    // DisplayScreen();
-    // SaveTree();
-
+    SaveData(tree, fileName);
     return 0;
 }

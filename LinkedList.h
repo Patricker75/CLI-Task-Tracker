@@ -1,100 +1,75 @@
-#ifndef LINKEDLIST_H
-#define LINKEDLIST_H
+#ifndef LinkedList_H
+#define LinkedList_H
 
 #include "Node.h"
-#include <string>
-#include <iostream>
 
 template <class T>
 class LinkedList {
 private:
     Node<T>* head;
-    Node<T>* tail;
-
-    std::string ToString(Node<T>* node) {
-        std::string output = "";
-        if (node == nullptr) {
-            return output;
-        }
-        output += std::to_string(node->data) + " " + this->ToString(node->next);
-        return output;
-    };
-
-    void Remove(T data, Node<T>* node) {
-        if (node->next == nullptr) {
-            return;
-        }
-
-        if (node->next->data == data) {
-            Node<T>* toRemove = node->next;
-            node->next = toRemove->next;
-            
-            if (this->tail == toRemove) {
-                this->tail = node;
-            }
-
-            delete toRemove;
-        }
-        else {
-            this->Remove(data, node->next);
-        }
-    }
+    int length;
 public:
     LinkedList<T>() {
         this->head = nullptr;
-        this->tail = nullptr;
+        this->length = 0;
     };
-    
-    void Add(T data) {
+
+    T* Insert(T data) {
         Node<T>* temp = new Node<T>(data);
-
-        this->Add(temp);
-    };
-
-    void Add(Node<T>* node) {
+        this->length++;
         if (this->head == nullptr) {
-            this->head = node;
-            this->tail = node;
-            return;
+            this->head = temp;
+
+            return &temp->data;
         }
 
-        this->tail->next = node;
-        this->tail = node;
-    };
+        Node<T>* current = this->head;
+        while (current->next != nullptr) {
+            current = current->next;
+        }
 
-    void Remove(T data) {
+        current->next = temp;
+        temp->prev = current;
+        return &temp->data;
+    }
+
+    void Delete(T data) {
         if (this->Empty()) {
             return;
         }
-        else if (this->head->data == data) {
-            this->head = this->head->next;
+
+        Node<T>* current = this->head;
+
+        while (current != nullptr && current->data != data) {
+            current = current->next;
+        }
+
+        if (current == nullptr) {
             return;
         }
 
-        this->Remove(data, this->head);
+        this->length--;
+        if (current == this->head) {
+            this->head = current->next;
+        }
+
+        if (current->prev != nullptr) {
+            current->prev->next = current->next;
+        }
+        current->next = current->prev;
+    }
+
+    bool Empty() {
+        return this->head == nullptr;
     }
 
     Node<T>* GetHead() {
         return this->head;
-    };
-    Node<T>* GetTail() {
-        return this->tail;
-    };
+    }
 
-    bool Empty() {
-        return this->head == nullptr;
-    };
-    
-    friend std::ostream& operator<<(std::ostream& os, const LinkedList<T>& list) {
-        Node<T>* node = list.head;
-
-        while (node != nullptr) {
-            os << node->data << " ";
-            node = node->next;
-        }
-        return os;
-    };
-
+    int GetLength() {
+        return this->length;
+    }
 };
 
 #endif
