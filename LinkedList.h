@@ -59,6 +59,18 @@ public:
         current->next = current->prev;
     }
 
+    Node<T>* Search(T data) {
+        Node<T>* current = this->head;
+
+        while (current != nullptr) {
+            if (current->data == data) {
+                break;
+            }
+        }
+        
+        return current;
+    }
+
     bool Empty() {
         return this->head == nullptr;
     }

@@ -265,10 +265,7 @@ int main(int argc, char* argv []) {
     string fileName = "test.json";
 
     tree = LoadData(fileName, tags);
-
-    // Task t = tree->GetRoot()->tasks->GetHead()->next->data;
-    // tags->Remove("success", &t);
-
+    
     Run();
 
     SaveData(tree, "SavedData.json");

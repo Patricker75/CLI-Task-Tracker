@@ -80,7 +80,9 @@ public:
         TagNode* current = this->root;
         while (current != nullptr) {
             if (key == current->key) {
-                current->tasks->Insert(t);
+                if (current->tasks->Search(t) == nullptr) {
+                    current->tasks->Insert(t);
+                }
 
                 return;
             }
