@@ -63,6 +63,16 @@ public:
 
         return current;
     }
+
+    void Remove(std::string tag, Task* t) {
+        TagPair* target = this->Search(tag);
+
+        if (target == nullptr) {
+            return;
+        }
+
+        target->tree->Remove(t);
+    }
 };
 
 #endif

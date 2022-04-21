@@ -249,6 +249,10 @@ int main(int argc, char* argv []) {
     cout << GetTagAsString(tags->Search("test")->tree->GetRoot()) << endl;
     cout << GetTagAsString(tags->Search("success")->tree->GetRoot()) << endl;
 
+    tags->Remove("success", &t1);
 
+    cout << GetTagAsString(tags->Search("test")->tree->GetRoot()) << endl;
+    cout << GetTagAsString(tags->Search("success")->tree->GetRoot()) << endl;
+    
     return 0;
 }
