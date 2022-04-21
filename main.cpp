@@ -262,13 +262,13 @@ void Run() {
 }
 
 int main(int argc, char* argv []) {
-    string fileName = "test.json";
+    string fileName = "data.json";
 
     tree = LoadData(fileName, tags);
     
     Run();
 
-    SaveData(tree, "SavedData.json");
+    SaveData(tree, fileName);
 
     return 0;
 }
