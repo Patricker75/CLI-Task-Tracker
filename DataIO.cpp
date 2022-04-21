@@ -2,7 +2,7 @@
 
 #pragma region Loading Data
 
-TaskTree* LoadData (string filePath) {
+TaskTree* LoadData (string filePath, TagsList* tags) {
     ifstream file(filePath);
 
     if (!file) {
@@ -19,7 +19,7 @@ TaskTree* LoadData (string filePath) {
         getline(file, line);
 
         if (line.find("{") != line.npos) {
-            ParseTNode(file, tree);
+            ParseTNode(file, tree, tags);
         }
     }
 
@@ -28,7 +28,7 @@ TaskTree* LoadData (string filePath) {
     return tree;
 }
 
-void ParseTNode (ifstream& file, TaskTree* tree) {
+void ParseTNode (ifstream& file, TaskTree* tree, TagsList* tags) {
     ofstream out("tempfile.txt");
     string line;
 
@@ -44,7 +44,7 @@ void ParseTNode (ifstream& file, TaskTree* tree) {
         }
 
         if (line.find("{") != line.npos) {
-            Task t = ParseTask(file);
+            Task t = ParseTask(file, tags);
             t.dueDate = dueDate;
 
             tree->Insert(t);
@@ -53,7 +53,7 @@ void ParseTNode (ifstream& file, TaskTree* tree) {
 
 }
 
-Task ParseTask (ifstream& file) {
+Task ParseTask (ifstream& file, TagsList* tags) {
     Task t;
 
     string line;
@@ -68,6 +68,13 @@ Task ParseTask (ifstream& file) {
     t.notes = line.substr(indexOfValue, line.find_last_of("\"") - indexOfValue);
 
     t.tags = ParseTags(file);
+
+    Node<string>* current = t.tags->GetHead();
+    while (current != nullptr) {
+        tags->Insert(current->data, &t);
+
+        current = current->next;
+    }
 
     return t;
 }

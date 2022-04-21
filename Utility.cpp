@@ -42,3 +42,16 @@ int DateParser(std::string date) {
 
     return year * 10000 + month * 100 + day;
 }
+
+std::string PrintTags(Task t) {
+    Node<std::string>* current = t.tags->GetHead();
+
+    std::string output = "";
+    while (current != nullptr) {
+        output += current->data + "\n";
+        
+        current = current->next;
+    }
+
+    return output;
+}

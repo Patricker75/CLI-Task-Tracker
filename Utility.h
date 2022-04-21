@@ -13,4 +13,6 @@ std::string InOrderTreeTraverse(TNode* node);
 
 int DateParser(std::string date);
 
+std::string PrintTags(Task t);
+
 #endif

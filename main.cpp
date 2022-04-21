@@ -12,6 +12,7 @@
 using namespace std;
 
 static TaskTree* tree = new TaskTree();
+static TagsList* tags = new TagsList();
 
 void PrintMenu() {
     cout << "Choose an Option:" << endl; // TODO add selection text
@@ -42,6 +43,17 @@ void AddScreen() {
 
     if (notes != "") {
         task.notes = notes;
+    }
+
+    cout << "Task's Tags" << endl;
+    string tag;
+    getline(cin, tag);
+    while (tag != "") {
+        task.tags->Insert(tag);
+
+        tags->Insert(tag, &task);
+
+        getline(cin, tag);
     }
 
     tree->Insert(task.dueDate, task);
@@ -84,6 +96,8 @@ void EditScreen() {
     cout << "1 - Name" << endl;
     cout << "2 - Due Date" << endl;
     cout << "3 - Notes" << endl;
+    cout << "4 - Add Tags" << endl;
+    cout << "5 - Remove Tags" << endl;
     cout << "0 - Exit" << endl;
     getline(cin, choice);
     int option = stoi(choice);
@@ -108,6 +122,33 @@ void EditScreen() {
             getline(cin, choice);
 
             targetTask->notes = choice;
+            break;
+        case 4:
+            cout << "New Tag(s): " << endl;
+            getline(cin, choice);
+
+            while (choice != "") {
+                targetTask->tags->Insert(choice);
+                tags->Insert(choice, targetTask);
+
+                getline(cin, choice);
+            }
+            break;
+        case 5:
+            if (targetTask->tags->Empty()) {
+                cout << "Task has no Tags" << endl;
+                break;
+            }
+            cout << "Delete Tag(s): " << endl;
+            cout << PrintTags(*targetTask) << endl;
+
+            getline(cin, choice);
+            while (choice != "" && !targetTask->tags->Empty()) {
+                targetTask->tags->Delete(choice);
+                tags->Remove(choice, targetTask);
+
+                getline(cin, choice);
+            }
             break;
         }
 
@@ -223,11 +264,14 @@ void Run() {
 int main(int argc, char* argv []) {
     string fileName = "test.json";
 
-    // tree = LoadData(fileName);
+    tree = LoadData(fileName, tags);
 
-    // Run();
+    // Task t = tree->GetRoot()->tasks->GetHead()->next->data;
+    // tags->Remove("success", &t);
 
-    // SaveData(tree, fileName);
+    Run();
+
+    SaveData(tree, "SavedData.json");
 
     return 0;
 }

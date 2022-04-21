@@ -108,6 +108,10 @@ public:
     void Remove(Task* t) {
         TagNode* target = this->Search(t->dueDate);
 
+        if (target == nullptr) {
+            return;
+        }
+
         target->tasks->Delete(t);
 
         if (target->tasks->Empty()) {
