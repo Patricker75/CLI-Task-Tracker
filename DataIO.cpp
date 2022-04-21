@@ -1,6 +1,8 @@
 #include "DataIO.h"
 
-TaskTree* LoadData (string filePath) {
+#pragma region Loading Data
+
+TaskTree* LoadData (string filePath, TagsList* tags) {
     ifstream file(filePath);
 
     if (!file) {
@@ -17,7 +19,7 @@ TaskTree* LoadData (string filePath) {
         getline(file, line);
 
         if (line.find("{") != line.npos) {
-            ParseTNode(file, tree);
+            ParseTNode(file, tree, tags);
         }
     }
 
@@ -26,7 +28,7 @@ TaskTree* LoadData (string filePath) {
     return tree;
 }
 
-void ParseTNode (ifstream& file, TaskTree* tree) {
+void ParseTNode (ifstream& file, TaskTree* tree, TagsList* tags) {
     ofstream out("tempfile.txt");
     string line;
 
@@ -42,7 +44,7 @@ void ParseTNode (ifstream& file, TaskTree* tree) {
         }
 
         if (line.find("{") != line.npos) {
-            Task t = ParseTask(file);
+            Task t = ParseTask(file, tags);
             t.dueDate = dueDate;
 
             tree->Insert(t);
@@ -51,7 +53,7 @@ void ParseTNode (ifstream& file, TaskTree* tree) {
 
 }
 
-Task ParseTask (ifstream& file) {
+Task ParseTask (ifstream& file, TagsList* tags) {
     Task t;
 
     string line;
@@ -59,16 +61,49 @@ Task ParseTask (ifstream& file) {
     while (!file.eof()) {
         getline(file, line);
 
-        if (line.find("}") != line.npos) {
-            break;
-        }
+    int indexOfValue = line.find(": ") + 3;
+    t.name = line.substr(indexOfValue, line.find_last_of("\"") - indexOfValue);
+    
+    getline(file, line);
+    indexOfValue = line.find(": ") + 3;
+    t.notes = line.substr(indexOfValue, line.find_last_of("\"") - indexOfValue);
 
-        int indexOfValue = line.find(": ") + 3;
-        t.name = line.substr(indexOfValue, line.length() - indexOfValue - 1);
+    t.tags = ParseTags(file);
+
+    Node<string>* current = t.tags->GetHead();
+    while (current != nullptr) {
+        tags->Insert(current->data, &t);
+
+        current = current->next;
     }
 
     return t;
 }
+
+#include <iostream>
+LinkedList<string>* ParseTags(ifstream& file) {
+    LinkedList<string>* list = new LinkedList<string>();
+    
+    string line;
+
+    getline(file, line);
+    
+    getline(file, line);
+    while (line.find("]") == line.npos) {
+        line = line.substr(line.find("\"") + 1);
+        line = line.substr(0, line.find("\""));
+
+        list->Insert(line);
+
+        getline(file, line);
+    }
+
+    return list;
+}
+
+#pragma endregion Loading Data
+
+#pragma region Saving Data
 
 string Indenter(int tabCount) {
     string out = "";
@@ -125,7 +160,26 @@ void SaveData (TaskTree* tree, string filePath) {
             file << Indenter(indentCount) << "{" << endl;
             indentCount++;
 
-            file << Indenter(indentCount) << "\"name\": \"" << task->data.name << "\"" << endl;
+            file << Indenter(indentCount) << "\"name\": \"" << task->data.name << "\"," << endl;
+            file << Indenter(indentCount) << "\"notes\": \"" << task->data.notes << "\"," << endl;
+
+            file << Indenter(indentCount) << "\"tags\": [" << endl;
+            indentCount++;
+
+            Node<string>* currentTag = task->data.tags->GetHead();
+            while (currentTag != nullptr) {
+                file << Indenter(indentCount) << "\"" << currentTag->data << "\"";
+
+                if (currentTag->next != nullptr) {
+                    file << ",";
+                }
+                file << endl;
+
+                currentTag = currentTag->next;
+            }
+            indentCount--;
+            file << Indenter(indentCount) << "]" << endl;
+
             indentCount--;
 
             file << Indenter(indentCount) << "}";

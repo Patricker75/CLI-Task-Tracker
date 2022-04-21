@@ -4,7 +4,17 @@ std::string ListToString(Node<Task>* node) {
     std::string output = "";
 
     while (node != nullptr) {
+<<<<<<< HEAD
         output += node->data.name + "\n";
+=======
+        output += node->data.name;
+
+        if (node->data.notes != "") {
+            output += " --- " + node->data.notes;
+        }
+>>>>>>> 818e2d434c8cd59872cee3cfe8cba81a757fca7b
+
+        output += "\n";
 
         node = node->next;
     }
@@ -35,4 +45,17 @@ int DateParser(std::string date) {
     int year = stoi(date);
 
     return year * 10000 + month * 100 + day;
+}
+
+std::string PrintTags(Task t) {
+    Node<std::string>* current = t.tags->GetHead();
+
+    std::string output = "";
+    while (current != nullptr) {
+        output += current->data + "\n";
+        
+        current = current->next;
+    }
+
+    return output;
 }
