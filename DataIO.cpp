@@ -61,13 +61,36 @@ Task ParseTask (ifstream& file) {
     getline(file, line);
 
     int indexOfValue = line.find(": ") + 3;
-    t.name = line.substr(indexOfValue, line.length() - indexOfValue - 2);
+    t.name = line.substr(indexOfValue, line.find_last_of("\"") - indexOfValue);
     
     getline(file, line);
     indexOfValue = line.find(": ") + 3;
-    t.notes = line.substr(indexOfValue, line.length() - indexOfValue - 1);
+    t.notes = line.substr(indexOfValue, line.find_last_of("\"") - indexOfValue);
+
+    t.tags = ParseTags(file);
 
     return t;
+}
+
+#include <iostream>
+LinkedList<string>* ParseTags(ifstream& file) {
+    LinkedList<string>* list = new LinkedList<string>();
+    
+    string line;
+
+    getline(file, line);
+    
+    getline(file, line);
+    while (line.find("]") == line.npos) {
+        line = line.substr(line.find("\"") + 1);
+        line = line.substr(0, line.find("\""));
+
+        list->Insert(line);
+
+        getline(file, line);
+    }
+
+    return list;
 }
 
 #pragma endregion Loading Data
@@ -127,7 +150,24 @@ void SaveData (TaskTree* tree, string filePath) {
             indentCount++;
 
             file << Indenter(indentCount) << "\"name\": \"" << task->data.name << "\"," << endl;
-            file << Indenter(indentCount) << "\"notes\": \"" << task->data.notes << "\"" << endl;
+            file << Indenter(indentCount) << "\"notes\": \"" << task->data.notes << "\"," << endl;
+
+            file << Indenter(indentCount) << "\"tags\": [" << endl;
+            indentCount++;
+
+            Node<string>* currentTag = task->data.tags->GetHead();
+            while (currentTag != nullptr) {
+                file << Indenter(indentCount) << "\"" << currentTag->data << "\"";
+
+                if (currentTag->next != nullptr) {
+                    file << ",";
+                }
+                file << endl;
+
+                currentTag = currentTag->next;
+            }
+            indentCount--;
+            file << Indenter(indentCount) << "]" << endl;
 
             indentCount--;
             file << Indenter(indentCount) << "}";

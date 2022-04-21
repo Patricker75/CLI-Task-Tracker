@@ -7,8 +7,10 @@ std::string ListToString(Node<Task>* node) {
         output += node->data.name;
 
         if (node->data.notes != "") {
-            output += " --- " + node->data.notes + "\n";
+            output += " --- " + node->data.notes;
         }
+
+        output += "\n";
 
         node = node->next;
     }

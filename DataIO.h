@@ -15,6 +15,8 @@ void ParseTNode (ifstream& file, TaskTree* tree);
 
 Task ParseTask (ifstream& file);
 
+LinkedList<string>* ParseTags(ifstream& file);
+
 void SaveData (TaskTree* tree, string filePath);
 
 #endif
