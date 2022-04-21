@@ -22,3 +22,24 @@ void ParseInput(const std::string filePath, TaskTree* tree) {
         tree->Insert(task.dueDate, task);
     }
 }
+
+std::string GetTagAsString(TagNode* node) {
+    if (node == nullptr) {
+        return "";
+    }
+
+    std::string output = GetTagAsString(node->left);
+
+    output += std::to_string(node->key) + "\n";
+    
+    Node<Task*>* current = node->tasks->GetHead();
+    while (current != nullptr) {
+        output += current->data->name + "\n";
+
+        current = current->next;
+    }
+
+    output += GetTagAsString(node->right);
+
+    return output;
+}

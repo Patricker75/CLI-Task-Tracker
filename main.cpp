@@ -2,6 +2,7 @@
 #include <fstream>
 
 #include "TaskTree.h"
+#include "TagsList.h"
 
 #include "Utility.h"
 #include "DataIO.h"
@@ -222,10 +223,32 @@ void Run() {
 int main(int argc, char* argv []) {
     string fileName = "data.json";
 
-    tree = LoadData(fileName);
+    // tree = LoadData(fileName);
 
-    Run();
+    // Run();
 
-    SaveData(tree, fileName);
+    // SaveData(tree, fileName);
+
+    TagsList* tags = new TagsList();
+
+    Task t1("test case 1", 1);
+    Task t2("test case 2", 1);
+    Task t3("test case 3", 2);
+
+    
+    tags->Insert("test", &t1);
+    tags->Insert("test", &t2);
+    tags->Insert("test", &t3);
+
+    tags->Insert("success", &t1);
+    
+    Task t4("test case 5", 9);
+    tags->Insert("success", &t4);
+    t4.name = "test case 4";
+
+    cout << GetTagAsString(tags->Search("test")->tree->GetRoot()) << endl;
+    cout << GetTagAsString(tags->Search("success")->tree->GetRoot()) << endl;
+
+
     return 0;
 }
