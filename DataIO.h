@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <string>
+#include <sstream>
 
 #include "TaskTree.h"
 #include "TagsList.h"
@@ -14,7 +15,11 @@ TaskTree* LoadData (string filePath, TagsList* tags);
 
 void ParseTNode (ifstream& file, TaskTree* tree, TagsList* tags);
 
-Task ParseTask (ifstream& file, TagsList* tags);
+Task ParseTask (ifstream& file);
+
+string Parser(string& s);
+
+string Formatter(string& s);
 
 LinkedList<string>* ParseTags(ifstream& file);
 

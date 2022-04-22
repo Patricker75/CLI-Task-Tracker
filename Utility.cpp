@@ -55,3 +55,24 @@ std::string PrintTags(Task t) {
 
     return output;
 }
+
+std::string PrintTasks(TagNode* node) {
+    if (node == nullptr) {
+        return "";
+    }
+
+    std::string output = PrintTasks(node->left);
+
+    output += std::to_string(node->key) + "\n";
+    
+    Node<Task*>* current = node->tasks->GetHead();
+    while (current != nullptr) {
+        output += current->data->name + "\n";
+
+        current = current->next;
+    }
+
+    output += PrintTasks(node->right);
+
+    return output;
+}

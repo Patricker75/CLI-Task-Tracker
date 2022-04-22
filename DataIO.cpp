@@ -44,16 +44,23 @@ void ParseTNode (ifstream& file, TaskTree* tree, TagsList* tags) {
         }
 
         if (line.find("{") != line.npos) {
-            Task t = ParseTask(file, tags);
+            Task t = ParseTask(file);
             t.dueDate = dueDate;
 
-            tree->Insert(t);
+            Task* ptr = tree->Insert(t);
+
+            Node<string>* current = t.tags->GetHead();
+            while (current != nullptr) {
+                tags->Insert(current->data, ptr);
+
+                current = current->next;
+            }
         }
     }
 
 }
 
-Task ParseTask (ifstream& file, TagsList* tags) {
+Task ParseTask (ifstream& file) {
     Task t;
 
     string line;
@@ -61,25 +68,20 @@ Task ParseTask (ifstream& file, TagsList* tags) {
     getline(file, line);
 
     int indexOfValue = line.find(": ") + 3;
-    t.name = line.substr(indexOfValue, line.find_last_of("\"") - indexOfValue);
-    
+    string temp;
+    temp = line.substr(indexOfValue, line.find_last_of("\"") - indexOfValue);
+    t.name = Parser(temp);
+
     getline(file, line);
     indexOfValue = line.find(": ") + 3;
-    t.notes = line.substr(indexOfValue, line.find_last_of("\"") - indexOfValue);
+    temp = line.substr(indexOfValue, line.find_last_of("\"") - indexOfValue);
+    t.notes = Parser(temp);
 
     t.tags = ParseTags(file);
-
-    Node<string>* current = t.tags->GetHead();
-    while (current != nullptr) {
-        tags->Insert(current->data, &t);
-
-        current = current->next;
-    }
 
     return t;
 }
 
-#include <iostream>
 LinkedList<string>* ParseTags(ifstream& file) {
     LinkedList<string>* list = new LinkedList<string>();
     
@@ -100,6 +102,29 @@ LinkedList<string>* ParseTags(ifstream& file) {
     return list;
 }
 
+string Parser(string& s) {
+    stringstream ss{""};
+
+    for(size_t i = 0; i < s.length(); i++)
+    {
+        if (s.at(i) == '\\')
+        {
+            switch(s.at(i + 1))
+            {
+                case 'n':  ss << "\n"; i++; break;
+                case '"':  ss << "\""; i++; break;
+                default:   ss << "\\";      break;
+            }       
+        }
+        else 
+        {
+            ss << s.at(i);
+        }
+    }
+
+    return ss.str();
+}
+
 #pragma endregion Loading Data
 
 #pragma region Saving Data
@@ -111,6 +136,21 @@ string Indenter(int tabCount) {
         out += "\t";
     }
     return out;
+}
+
+string Formatter(string& s) {
+    stringstream ss{""};
+
+    for (int i = 0; i < s.length(); i++) {
+        if (s.at(i) == '"') {
+            ss << "\\\"";
+        }
+        else {
+            ss << s.at(i);
+        }
+    }
+
+    return ss.str();
 }
 
 void SaveData (TaskTree* tree, string filePath) {
@@ -156,8 +196,8 @@ void SaveData (TaskTree* tree, string filePath) {
             file << Indenter(indentCount) << "{" << endl;
             indentCount++;
 
-            file << Indenter(indentCount) << "\"name\": \"" << task->data.name << "\"," << endl;
-            file << Indenter(indentCount) << "\"notes\": \"" << task->data.notes << "\"," << endl;
+            file << Indenter(indentCount) << "\"name\": \"" << Formatter(task->data.name) << "\"," << endl;
+            file << Indenter(indentCount) << "\"notes\": \"" << Formatter(task->data.notes) << "\"," << endl;
 
             file << Indenter(indentCount) << "\"tags\": [" << endl;
             indentCount++;

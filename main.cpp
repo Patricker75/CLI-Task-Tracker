@@ -20,6 +20,7 @@ void PrintMenu() {
     cout << "1 - add new task" << endl;
     cout << "2 - edit stored task" << endl;
     cout << "3 - delete stored task" << endl;
+    cout << "4 - search tasks with tag" << endl;
 
     cout << "-1 - exit" << endl;
 }
@@ -212,6 +213,38 @@ void DeleteScreen() {
     }
 }
 
+void DisplayTagScreen() {
+    if (tags->Empty()) {
+        cout << "No Tags Added" << endl;
+
+        return;
+    }
+    cout << "List of Tags:" << endl;
+    
+    TagPair* current = tags->GetHead();
+    while (current != nullptr) {
+        cout << current->tag << endl;
+
+        current = current->next;
+    }
+    free(current);
+
+    string choice;
+    cout << endl;
+    cout << "Tag to Search: " << endl;
+    getline(cin, choice);
+
+    TagPair* target = tags->Search(choice);
+
+    if (target == nullptr) {
+        cout << "No task with tag exists" << endl;
+        
+        return;
+    }
+
+    cout << PrintTasks(target->tree->GetRoot()) << endl;
+}
+
 void DisplayScreen() {
     if (tree->Empty()) {
         cout << "No Tasks" << endl;
@@ -221,7 +254,7 @@ void DisplayScreen() {
     }
 }
 
-void MenuScreen() {
+void MenuScreen(std::string fileName) {
     bool loop = true;
 
     while (loop) {
@@ -248,17 +281,22 @@ void MenuScreen() {
             case 3:
                 DeleteScreen();
                 break;
+            case 4:
+                DisplayTagScreen();
+                break;
             default:
                 cout << "Invalid Input" << endl;
             break;
         }
 
         cout << endl;
+
+        SaveData(tree, fileName);
     }
 }
 
-void Run() {
-    MenuScreen();
+void Run(std::string fileName) {
+    MenuScreen(fileName);
 }
 
 int main(int argc, char* argv []) {
@@ -266,7 +304,7 @@ int main(int argc, char* argv []) {
 
     tree = LoadData(fileName, tags);
     
-    Run();
+    Run(fileName);
 
     SaveData(tree, fileName);
 

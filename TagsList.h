@@ -73,6 +73,14 @@ public:
 
         target->tree->Remove(t);
     }
+
+    bool Empty() {
+        return this->head == nullptr;
+    }
+
+    TagPair* GetHead() {
+        return this->head;
+    }
 };
 
 #endif
