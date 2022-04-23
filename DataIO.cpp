@@ -29,7 +29,6 @@ TaskTree* LoadData (string filePath, TagsList* tags) {
 }
 
 void ParseTNode (ifstream& file, TaskTree* tree, TagsList* tags) {
-    ofstream out("tempfile.txt");
     string line;
 
     getline(file, line);

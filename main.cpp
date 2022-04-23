@@ -46,18 +46,20 @@ void AddScreen() {
         task.notes = notes;
     }
 
+    Task* ptr = tree->Insert(task.dueDate, task);
+
     cout << "Task's Tags" << endl;
     string tag;
     getline(cin, tag);
     while (tag != "") {
         task.tags->Insert(tag);
 
-        tags->Insert(tag, &task);
+        tags->Insert(tag, ptr);
 
         getline(cin, tag);
     }
 
-    tree->Insert(task.dueDate, task);
+    
 }
 
 void EditScreen() {
@@ -291,7 +293,7 @@ void MenuScreen(std::string fileName) {
 
         cout << endl;
 
-        SaveData(tree, fileName);
+        // SaveData(tree, fileName);
     }
 }
 
@@ -306,7 +308,7 @@ int main(int argc, char* argv []) {
     
     Run(fileName);
 
-    SaveData(tree, fileName);
+    // SaveData(tree, fileName);
 
     return 0;
 }
