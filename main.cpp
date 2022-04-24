@@ -293,7 +293,7 @@ void MenuScreen(std::string fileName) {
 
         cout << endl;
 
-        // SaveData(tree, fileName);
+        SaveData(tree, fileName);
     }
 }
 
@@ -308,7 +308,7 @@ int main(int argc, char* argv []) {
     
     Run(fileName);
 
-    // SaveData(tree, fileName);
+    SaveData(tree, fileName);
 
     return 0;
 }
