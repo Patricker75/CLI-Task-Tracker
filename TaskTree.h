@@ -1,42 +1,67 @@
 #ifndef TASKTREE_H
 #define TASKTREE_H
 
-#include "TaskNode.h"
+#include "Task.h"
+#include "LinkedList.h"
+
+struct TNode {
+    TNode(int key) {
+        this->key = key;
+        this->tasks = new LinkedList<Task>();
+
+        this->left = nullptr;
+        this->right = nullptr;
+    }
+
+    int key;
+    LinkedList<Task>* tasks;
+    TNode* left;
+    TNode* right;
+};
 
 class TaskTree {
 private:
-    TaskNode* root;
+    TNode* root;
 
-    Node<int>* Search(int date, Node<int>* node) {
+    TNode* Delete(int key, TNode* node) {
         if (node == nullptr) {
             return nullptr;
         }
-        
-        if (date == node->data) {
-            return static_cast<TaskNode*>(node);
-        }
 
-        if (date < node->data) {
-            return Search(date, node->left);
+        if (key < node->key) {
+            node->left = this->Delete(key, node->left);
+            return node;
         }
-        return Search(date, node->right);
-    }
+        else if (key > node->key) {
+            node->right = this->Delete(key, node->right);
+            return node;
+        }
+        else {
+            if (node->left == nullptr && node->right == nullptr) {
+                delete node;
 
-    void Insert(Node<int>* currentNode, TaskNode* toAdd) {
-        if (toAdd->data < currentNode->data) {
-            if (currentNode->left == nullptr) {
-                currentNode->left = toAdd;
+                return nullptr;
             }
-            else {
-                this->Insert(currentNode->left, toAdd);
+            else if (node->left != nullptr && node->right != nullptr) {
+                TNode* successor = node->right;
+                while (successor->left != nullptr) {
+                    successor = successor->left;
+                }
+                node->key = successor->key;
+                node->tasks = successor->tasks;
+
+                node->right = this->Delete(successor->key, node->right);
+                return node;
             }
-        }
-        else if (toAdd->data > currentNode->data) {
-            if (currentNode->right == nullptr) {
-                currentNode->right = toAdd;
+            else if (node->left != nullptr) {
+                TNode* temp = node->left;
+                delete node;
+                return temp;
             }
-            else {
-                this->Insert(currentNode->right, toAdd);
+            else if (node->right != nullptr) {
+                TNode* temp = node->right;
+                delete node;
+                return temp;
             }
         }
     }
@@ -45,28 +70,113 @@ public:
         this->root = nullptr;
     };
 
-    void Insert(int date, const Task& task) {
-        TaskNode* targetNode = this->Search(date);
+    Task* Insert(int key, Task task) {
+        TNode* node = this->Search(key);
 
-        if (targetNode == nullptr) {
-            targetNode = new TaskNode(date);
+        if (node != nullptr) {
+            return node->tasks->Insert(task);
         }
-        targetNode->tasks->Add(task);
 
+        node = new TNode(key);
+        Task* ptr = node->tasks->Insert(task);
         if (this->root == nullptr) {
-            this->root = targetNode;
-            return;
+            this->root = node;
+
+            return ptr;
         }
+
+        TNode* current = this->root;
+        while (current != nullptr) {
+            if (node->key < current->key) {
+                if (current->left == nullptr) {
+                    current->left = node;
+                    break;
+                }
+
+                current = current->left;
+            }
+            else if (node->key > current->key) {
+                if (current->right == nullptr) {
+                    current->right = node;
+                    break;
+                }
+
+                current = current->right;
+            }
+        }
+
+        return ptr;
     }
 
-    TaskNode* Search(int date) {
+    Task* Insert(Task task) {
+        int key = task.dueDate;
+        TNode* node = this->Search(key);
+
+        if (node != nullptr) {
+            return node->tasks->Insert(task);
+        }
+
+        node = new TNode(key);
+        Task* ptr = node->tasks->Insert(task);
+        if (this->root == nullptr) {
+            this->root = node;
+
+            return ptr;
+        }
+
+        TNode* current = this->root;
+        while (current != nullptr) {
+            if (node->key < current->key) {
+                if (current->left == nullptr) {
+                    current->left = node;
+                    break;
+                }
+
+                current = current->left;
+            }
+            else if (node->key > current->key) {
+                if (current->right == nullptr) {
+                    current->right = node;
+                    break;
+                }
+
+                current = current->right;
+            }
+        }
+
+        return ptr;
+    }
+
+    TNode* Search(int key) {
         if (this->root == nullptr) {
             return nullptr;
         }
 
-        return this->Search(date, this->root);
+        TNode* current = this->root;
+
+        while (current != nullptr && key != current->key) {
+            if (key < current->key) {
+                current = current->left;
+            }
+            else if (key > current->key) {
+                current = current->right;
+            }
+        }
+
+        return current;
     }
     
+    void Delete(int key) {
+        this->root = this->Delete(key, this->root);
+    }
+
+    TNode* GetRoot() {
+        return this->root;
+    }
+
+    bool Empty() {
+        return this->root == nullptr;
+    }
 };
 
 #endif

@@ -3,20 +3,18 @@
 
 template <class T>
 struct Node {
-    T data;
-
-    Node<T>* next;
-    Node<T>* left;
-    Node<T>* right;
-
+public:
     Node<T>(T data) {
         this->data = data;
 
         this->next = nullptr;
-        this->left = nullptr;
-        this->right = nullptr;
+        this->prev = nullptr;
     };
+    
+    T data;
 
+    Node<T>* next;
+    Node<T>* prev;
 };
 
 #endif

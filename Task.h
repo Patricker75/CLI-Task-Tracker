@@ -2,34 +2,41 @@
 #define TASK_H
 
 #include <string>
+
 #include "LinkedList.h"
-#include "Date.h"
 
 struct Task {
-    Task() {}
-    
-    Task(std::string name) {
+public:
+    Task() {};
+
+    Task(std::string name, int dueDate) {
         this->name = name;
+        this->dueDate = dueDate;
+
         this->notes = "";
         this->tags = new LinkedList<std::string>();
-    }
+    };
 
-    Task(std::string name, std::string notes) {
+    Task(std::string name, int year, int month, int day) {
         this->name = name;
-        this->notes = notes;
+        this->dueDate = year * 10000 + month * 100 + day;
+
         this->tags = new LinkedList<std::string>();
     }
+    
+    std::string name;
+    int dueDate;
 
-    Task(std::string name, std::string notes, LinkedList<std::string>* tags) {
-        this->name = name;
-        this->notes = notes;
-        this->tags = tags;
+    LinkedList<std::string>* tags;
+    std::string notes;
+
+    friend bool operator==(const Task& task1, const Task& task2) {
+        return task1.name == task2.name;
     }
 
-    std::string name;
-    std::string notes;
-    LinkedList<std::string>* tags;
+    friend bool operator!=(const Task& task1, const Task& task2) {
+        return !(task1.name == task2.name);
+    }
 };
-
 
 #endif
